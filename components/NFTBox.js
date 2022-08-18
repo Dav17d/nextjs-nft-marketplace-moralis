@@ -91,6 +91,8 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
         })
     }
 
+    const parsedPrice = ethers.utils.formatUnits(price, "ether")
+
     return (
         <div>
             <div>
@@ -121,7 +123,10 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
                                         width="200"
                                     />
                                     <div className="font-bold">
-                                        {ethers.utils.formatUnits(price, "ether")} ETH
+                                        {parsedPrice.slice(-2) === ".0"
+                                            ? parsedPrice.substring(0, parsedPrice.length - 2)
+                                            : parsedPrice}{" "}
+                                        ETH
                                     </div>
                                 </div>
                             </div>

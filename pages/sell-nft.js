@@ -36,7 +36,10 @@ export default function Home() {
 
         await runContractFunction({
             params: approveOptions,
-            onSuccess: () => handleApproveSuccess(nftAddress, tokenId, price),
+            onSuccess: async (tx) => {
+                await tx.wait(1)
+                handleApproveSuccess(nftAddress, tokenId, price)
+            },
             onError: (error) => console.log(error),
         })
     }

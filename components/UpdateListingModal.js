@@ -19,8 +19,8 @@ export default function UpdateListingModal({
         await tx.wait(1)
         dispatch({
             type: "success",
-            message: "listing updated",
-            title: "Listing update - please refresh",
+            message: "Listing updated!",
+            title: "Listing updated - please refresh",
             position: "topR",
         })
         onClose && onClose()

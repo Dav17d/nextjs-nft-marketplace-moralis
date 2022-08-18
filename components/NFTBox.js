@@ -4,7 +4,7 @@ import { useWeb3Contract, useMoralis } from "react-moralis"
 import nftMarketplaceAbi from "../constants/NftMarketplace.json"
 import nftAbi from "../constants/BasicNft.json"
 import Image from "next/image"
-import { Card } from "@web3uikit/core"
+import { Card, useNotification } from "@web3uikit/core"
 import UpdateListingModal from "./UpdateListingModal"
 
 const truncateStr = (fullStr, strLen) => {
@@ -27,12 +27,24 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     const [tokenDescription, setTokenDescription] = useState("")
     const [showModal, setShowModal] = useState(false)
     const hideModal = () => setShowModal(false)
+    const dispatch = useNotification()
 
     const { runContractFunction: getTokenURI } = useWeb3Contract({
         abi: nftAbi,
         contractAddress: nftAddress,
         functionName: "tokenURI",
         params: {
+            tokenId: tokenId,
+        },
+    })
+
+    const { runContractFunction: buyItem } = useWeb3Contract({
+        abi: nftMarketplaceAbi,
+        contractAddress: marketplaceAddress,
+        functionName: "buyItem",
+        msgValue: price,
+        params: {
+            nftAddress: nftAddress,
             tokenId: tokenId,
         },
     })
@@ -61,7 +73,22 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     const fomrattedSellerAddress = isOwnedByUser ? "you" : truncateStr(seller || "", 15)
 
     const handleCardClick = () => {
-        isOwnedByUser ? setShowModal(true) : console.log("Let's buy!")
+        isOwnedByUser
+            ? setShowModal(true)
+            : buyItem({
+                  onError: (error) => console.log(error),
+                  onSuccess: handleBuyItemSuccess,
+              })
+    }
+
+    const handleBuyItemSuccess = async (tx) => {
+        await tx.wait(1)
+        dispatch({
+            type: "success",
+            message: "Item bought!",
+            title: "Item bought",
+            position: "topR",
+        })
     }
 
     return (
